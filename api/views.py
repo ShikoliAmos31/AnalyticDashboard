@@ -1,8 +1,10 @@
+import csv
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from random import randint
 from api.models import totalViewModel, MostwatchedVideos
 from app . models import Movies, Ratings
+
 # Create your views here.
 
 
@@ -49,5 +51,25 @@ def movies(request):
 
 def movies_with_ratings(request):
     queryset = Ratings.objects.all().values(
-        'rating', 'votes', 'movie_title', 'movie_name', 'movie_year'
+        'rating', 'votes', 'movie_id','movie_title', 'movie_name', 'movie_year'
+    ).filter(movie__year__gt=2000).order_by('movie_year')[:1000]
+    data = []
+    for item in queryset:
+        data.append([str(item['movie_id']), item['movie_title'], str(item['movie_year']), str(item['rating']), str(item['votes'])])
+    return JsonResponse({
+        'data': data
+    })
+
+def export(request):
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': 'attachment; filename="movies_export.csv"'},
     )
+    writer = csv.writer(response)
+    queryset = Ratings.objects.all().values(
+        'rating', 'votes', 'movie_id','movie_title', 'movie_name', 'movie_year'
+    ).filter(movie__year__gt=2000).order_by('movie_year')[:1000]
+    for item in queryset:
+        writter.writerow([str(item['movie_id']), item.title, str(item.year)])
+    
+    return response

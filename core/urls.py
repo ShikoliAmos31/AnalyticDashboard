@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('movies/', include("movies.urls")),
     path('api/', include("api.urls")),
+    #path("movie-with-ratings/", movie_with_ratings, name="movie-with-ratings"),
     path('dashboard/', include('dashboard.urls')),
     path('', include('app.urls'))
 ]
